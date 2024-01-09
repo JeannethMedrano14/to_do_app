@@ -27,7 +27,7 @@ export default function App() {
           name="Crear"
           component={CreateNote}
           options={{
-            title: "Crear Notas",
+            title: "Crear Tarea",
             headerTitleAlign: "center",
             headerStyle: { backgroundColor: "#129BF4" },
             headerTintColor: "white",
@@ -37,7 +37,7 @@ export default function App() {
           name="Editar"
           component={EditNote}
           options={{
-            title: "Editar nota",
+            title: "Editar Tarea",
             headerTitleAlign: "center",
             headerStyle: { backgroundColor: "#000" },
             headerTintColor: "white",
