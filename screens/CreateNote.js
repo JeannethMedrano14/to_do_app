@@ -1,70 +1,39 @@
-import React, { useState, useEffect } from "react";
-import {
-  Text,
-  StyleSheet,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { Platform } from "react-native";
-import appFirebase from "../credenciales";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  deleteDoc,
-  getDoc,
-  setDoc,
-} from "firebase/firestore";
+import React, { useState, useEffect } from 'react';
+import { Text, StyleSheet, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Platform } from 'react-native';
+import appFirebase from '../credenciales';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
 const db = getFirestore(appFirebase);
 
 export default function CreateNote(props) {
   const initialState = {
-    titulo: "",
-
-    detalle: "",
+    titulo: '',
+    detalle: '',
   };
 
-  const [date, setDate] = useState(new Date(1598051730000));
+  const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
-  const [text, setText] = useState("empty");
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
   const [estado, setEstado] = useState(initialState);
+
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
-
     setShow(Platform.OS === "ios");
-
     setDate(currentDate);
 
     let tempDate = new Date(currentDate);
-
-    let fDate =
-      tempDate.getDate() +
-      "/" +
-      (tempDate.getMonth() + 1) +
-      "/" +
-      tempDate.getFullYear();
-
+    let fDate = tempDate.getDate() + "/" + (tempDate.getMonth() + 1) + "/" + tempDate.getFullYear();
     let fTime = tempDate.getHours() + " : " + tempDate.getMinutes();
-
-    //   setText(fDate + " " + fTime);
-
     setFecha(fDate);
-
     setHora(fTime);
   };
 
   const showMode = (currentDate) => {
     setShow(true);
-
     setMode(currentDate);
   };
 
@@ -74,85 +43,58 @@ export default function CreateNote(props) {
 
   const saveNote = async () => {
     try {
-      if (estado.titulo === "" || estado.detalle === "") {
-        Alert.alert("mensaje importante", "debes rellenar el campo requerido");
+      if (estado.titulo === '' || estado.detalle === '') {
+        Alert.alert('Mensaje importante', 'Debes rellenar el campo requerido');
       } else {
         const nota = {
           titulo: estado.titulo,
-
           detalle: estado.detalle,
-
           fecha: fecha,
-
           hora: hora,
         };
 
-        await addDoc(collection(db, "notas"), {
-          ...nota,
-        });
+        await addDoc(collection(db, 'notas'), { ...nota });
 
-        Alert.alert("Exito", "guardado con exito");
+        Alert.alert('Éxito', 'Guardado con éxito');
 
-        props.navigation.navigate("Notas");
+        props.navigation.navigate('Notas');
       }
     } catch (error) {
       console.log(error);
     }
-
-    //console.log(nota);
   };
+
   return (
     <View style={styles.contenedorPadre}>
       <View style={styles.tarjeta}>
         <View style={styles.contenedor}>
           <TextInput
-            placeholder="Ingresa el
-  titulo"
+            placeholder="Ingresa el título"
             style={styles.textoInput}
             value={estado.titulo}
-            onChangeText={(value) => handleChangeText(value, "titulo")}
+            onChangeText={(value) => handleChangeText(value, 'titulo')}
           />
-
           <TextInput
-            placeholder="Ingresa el
-  detalle"
+            placeholder="Ingresa el detalle"
             multiline={true}
             numberOfLines={4}
             style={styles.textoInput}
             value={estado.detalle}
-            onChangeText={(value) => handleChangeText(value, "detalle")}
+            onChangeText={(value) => handleChangeText(value, 'detalle')}
           />
 
-          {/* contenedor de fecha */}
-
+          {/* Contenedor de fecha */}
           <View style={styles.inputDate}>
-            <TextInput
-              placeholder="1/1/2024"
-              style={styles.textoDate}
-              value={fecha}
-            />
-
-            <TouchableOpacity
-              style={styles.botonDate}
-              onPress={() => showMode("date")}
-            >
+            <TextInput placeholder="1/1/2024" style={styles.textoDate} value={fecha} />
+            <TouchableOpacity style={styles.botonDate} onPress={() => showMode("date")}>
               <Text style={styles.subtitle}>Date</Text>
             </TouchableOpacity>
           </View>
 
-          {/* contenedro de hora */}
-
+          {/* Contenedor de hora */}
           <View style={styles.inputDate}>
-            <TextInput
-              placeholder="6 : 30"
-              style={styles.textoDate}
-              value={hora}
-            />
-
-            <TouchableOpacity
-              style={styles.botonDate}
-              onPress={() => showMode("time")}
-            >
+            <TextInput placeholder="6 : 30" style={styles.textoDate} value={hora} />
+            <TouchableOpacity style={styles.botonDate} onPress={() => showMode("time")} >
               <Text style={styles.subtitle}>Hora</Text>
             </TouchableOpacity>
           </View>
@@ -169,11 +111,10 @@ export default function CreateNote(props) {
             />
           )}
 
-          {/* boton para enviar los datos */}
-
+          {/* Boton para enviar los datos */}
           <View>
-            <TouchableOpacity style={styles.botonEnviar} onPress={saveNote}>
-              <Text style={styles.textoBtnEnviar}>Guardar nueva tarea</Text>
+            <TouchableOpacity style={styles.botonEnviar} onPress={saveNote} >
+              <Text style={styles.textoBtnEnviar}>Guardar una nueva nota</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -185,82 +126,72 @@ export default function CreateNote(props) {
 const styles = StyleSheet.create({
   contenedorPadre: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-
   tarjeta: {
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 20,
-    width: "90%",
+    width: '90%',
     padding: 20,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
   },
-
   contenedor: {
     padding: 20,
   },
-
   textoInput: {
-    borderColor: "slategray",
+    borderColor: 'slategray',
     borderWidth: 1,
-    padding: 2,
+    padding: 10,
     marginTop: 10,
     borderRadius: 8,
+    width: '100%',
   },
-
   inputDate: {
-    width: "100%",
-    flexWrap: "wrap",
-    flexDirection: "row",
+    width: '100%',
+    flexDirection: 'row',
+    marginTop: 10,
   },
-
   botonDate: {
-    backgroundColor: "#000",
+    backgroundColor: '#000',
     borderRadius: 5,
     padding: 10,
-    width: "30%",
-    height: "90%",
-    marginTop: 10,
+    width: '30%',
+    height: '100%',
     marginLeft: 10,
   },
-
   textoDate: {
-    borderColor: "slategray",
+    borderColor: 'slategray',
     borderWidth: 1,
     padding: 10,
-    marginTop: 10,
     borderRadius: 8,
+    flex: 1,
   },
-
   subtitle: {
-    color: "white",
+    color: 'white',
     fontSize: 18,
   },
-
   botonEnviar: {
-    backgroundColor: "#129BF4",
-    borderColor: "#000",
+    backgroundColor: '#129BF4',
+    borderColor: '#000',
     borderWidth: 1,
     borderRadius: 20,
     marginLeft: 20,
     marginRight: 20,
     marginTop: 20,
   },
-
   textoBtnEnviar: {
-    textAlign: "center",
+    textAlign: 'center',
     padding: 10,
-    color: "white",
+    color: 'white',
     fontSize: 16,
   },
 });
