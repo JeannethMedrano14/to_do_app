@@ -7,10 +7,11 @@ import {
   Alert,
   StyleSheet,
 } from "react-native";
-import appFirebase from "../credenciales";
+import appFirebase from "../../../credenciales";
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Platform } from "react-native";
+import {styles} from './StyleEditNote'
 
 const db = getFirestore(appFirebase);
 
@@ -194,77 +195,3 @@ Contenedor de hora */}
   );
 }
 
-const styles = StyleSheet.create({
-  contenedor: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
-  },
-
-  caja: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 20,
-    width: "90%",
-  },
-
-  textoInput: {
-    borderColor: "slategray",
-    borderWidth: 1,
-    padding: 10,
-    marginTop: 10,
-    borderRadius: 8,
-    width: "100%",
-  },
-
-  inputDate: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-
-  botonDate: {
-    backgroundColor: "#000",
-    borderRadius: 15,
-    padding: 10,
-    width: "30%",
-    height: 50,
-    marginLeft: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  textoDate: {
-    borderColor: "slategray",
-    borderWidth: 1,
-    padding: 10,
-    marginTop: 10,
-    borderRadius: 8,
-    flex: 1,
-  },
-
-  subtitle: {
-    color: "white",
-    fontSize: 18,
-  },
-
-  botonEnviar: {
-    backgroundColor: "#129BF4",
-    borderColor: "#000",
-    borderWidth: 1,
-    borderRadius: 20,
-    margin: 20,
-    padding: 10,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  textoBtnEnviar: {
-    textAlign: "center",
-    color: "white",
-    fontSize: 16,
-  },
-});

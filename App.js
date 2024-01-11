@@ -1,11 +1,11 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+
 import "react-native-gesture-handler";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
-import Notas from "./screens/Notas";
-import CreateNote from "./screens/CreateNote";
-import EditNote from "./screens/EditNote";
+import { StyleSheet } from "react-native";
+import Notas from "./screens/components/Notas/Notas";
+import CreateNote from "./screens/components/CreateNote/CreateNote";
+import EditNote from "./screens/components/EditNote/EditNote";
 
 export default function App() {
   const Stack = createStackNavigator();
