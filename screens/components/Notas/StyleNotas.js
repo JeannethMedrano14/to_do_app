@@ -57,19 +57,25 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  
+  // Ajusta el estilo del mensaje para agregar margen inferior
   modalText: {
     fontSize: 18,
     marginBottom: 20,
   },
+  
+  // Ajusta los estilos de los botonesEliminar y Cancelar
   botonEliminar: {
     backgroundColor: 'red',
-    borderRadius: 20,
+    borderRadius: 50, // Hacer los botones completamente redondos
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 10, // Espaciado entre el mensaje y los botones
+    marginRight: 10, // Alineación con el botón "Cancelar"
   },
+  
   botonCancelar: {
     backgroundColor: '#129BF4',
-    borderRadius: 20,
+    borderRadius: 50, // Hacer los botones completamente redondos
     padding: 10,
   },
 });

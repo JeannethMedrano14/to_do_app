@@ -66,8 +66,8 @@ export default function CreateNote(props) {
   };
 
   return (
-    <View style={style.contenedorPadre}>
-      <View style={style.tarjeta}>
+    <View style={styles.contenedorPadre}>
+      <View style={styles.tarjeta}>
         <View style={styles.contenedor}>
           <TextInput
             placeholder="Ingresa el título"

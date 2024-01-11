@@ -1,21 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Text, StyleSheet, View, ScrollView, TouchableOpacity, Alert, Modal } from 'react-native';
+import { Text, View, ScrollView, TouchableOpacity, Alert, Modal } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import appFirebase from '../../../credenciales';
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  deleteDoc,
-} from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ListItem, CheckBox, Button } from '@rneui/themed';
 import { ListItemContent } from '@rneui/base/dist/ListItem/ListItem.Content';
 import { ListItemTitle } from '@rneui/base/dist/ListItem/ListItem.Title';
 import { ListItemSubtitle } from '@rneui/base/dist/ListItem/ListItem.Subtitle';
-import {styles} from './StyleNotas';
+import { styles } from './StyleNotas';
 
 const db = getFirestore(appFirebase);
 
@@ -159,7 +152,7 @@ export default function Notas(props) {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalText}>¿Eliminar esta tarea?</Text>
+            <Text style={styles.modalText}>¿Seguro que quieres eliminar esta tarea?</Text>
             <Button onPress={() => deleteNote(notaEliminarId)} style={styles.botonEliminar}>
               Eliminar
             </Button>
@@ -172,4 +165,3 @@ export default function Notas(props) {
     </ScrollView>
   );
 }
-

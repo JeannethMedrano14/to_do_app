@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet} from 'react-native';
 
 
 export const styles = StyleSheet.create({
@@ -74,5 +74,6 @@ export const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
   },
+  
 });
 

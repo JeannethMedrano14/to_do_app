@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  StyleSheet,
-} from "react-native";
+import { Text, View, TextInput, TouchableOpacity, Alert } from "react-native";
 import appFirebase from "../../../credenciales";
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Platform } from "react-native";
-import {styles} from './StyleEditNote'
+import { styles } from './StyleEditNote'
 
 const db = getFirestore(appFirebase);
 
@@ -121,16 +114,14 @@ export default function EditNote(props) {
     <View style={styles.contenedor}>
       <View style={styles.caja}>
         <TextInput
-          placeholder="Ingresa el
-título"
+          placeholder="Ingresa el título"
           style={styles.textoInput}
           value={estado.titulo}
           onChangeText={(value) => handleChangeText(value, "titulo")}
         />
 
         <TextInput
-          placeholder="Ingresa el
-detalle"
+          placeholder="Ingresa el detalle"
           multiline={true}
           numberOfLines={4}
           style={styles.textoInput}
