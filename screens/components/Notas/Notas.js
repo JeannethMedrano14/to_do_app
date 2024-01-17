@@ -1,167 +1,184 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, ScrollView, TouchableOpacity, Alert, Modal } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
-import appFirebase from '../../../credenciales';
-import { getFirestore, collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ListItem, CheckBox, Button } from '@rneui/themed';
-import { ListItemContent } from '@rneui/base/dist/ListItem/ListItem.Content';
-import { ListItemTitle } from '@rneui/base/dist/ListItem/ListItem.Title';
-import { ListItemSubtitle } from '@rneui/base/dist/ListItem/ListItem.Subtitle';
-import { styles } from './StyleNotas';
-
-const db = getFirestore(appFirebase);
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import axios from 'axios';
 
 export default function Notas(props) {
-  const [lista, setLista] = useState([]);
-  const [tareasSeleccionadas, setTareasSeleccionadas] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [notaEliminarId, setNotaEliminarId] = useState(null);
+  const [tasks, setTasks] = useState([]);
 
-  const storeData = async (key, value) => {
-    try {
-      await AsyncStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      console.error('Error al almacenar datos:', error);
-    }
-  };
-
-  const getData = async (key) => {
-    try {
-      const value = await AsyncStorage.getItem(key);
-      return value != null ? JSON.parse(value) : null;
-    } catch (error) {
-      console.error('Error al obtener datos:', error);
-      return null;
-    }
-  };
-
-  const deleteNote = async (id) => {
-    try {
-      await deleteDoc(doc(db, 'notas', id));
-      Alert.alert('Éxito', 'Nota eliminada con éxito');
-      const updatedList = lista.filter((note) => note.id !== id);
-      setLista(updatedList);
-      setTareasSeleccionadas(
-        tareasSeleccionadas.filter((taskId) => taskId !== id)
-      );
-      setModalVisible(false);
-    } catch (error) {
-      console.error('Error al eliminar la nota:', error);
-    }
-  };
-
-  const toggleSeleccion = async (id) => {
-    const isSelected = tareasSeleccionadas.includes(id);
-    if (isSelected) {
-      const updatedSelection = tareasSeleccionadas.filter((taskId) => taskId !== id);
-      setTareasSeleccionadas(updatedSelection);
-      await storeData('tareasSeleccionadas', updatedSelection);
-    } else {
-      const updatedSelection = [...tareasSeleccionadas, id];
-      setTareasSeleccionadas(updatedSelection);
-      await storeData('tareasSeleccionadas', updatedSelection);
-    }
-  };
-
-  useEffect(() => {
-    const getLista = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'notas'));
-        const docs = [];
-        querySnapshot.forEach((doc) => {
-          const { titulo, detalle, fecha, hora } = doc.data();
-          docs.push({
-            id: doc.id,
-            titulo,
-            detalle,
-            fecha,
-            hora,
-          });
-        });
-        setLista(docs);
-
-        const storedSelection = await getData('tareasSeleccionadas');
-        if (storedSelection !== null) {
-          setTareasSeleccionadas(storedSelection);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getLista();
+  useEffect(() =>{
+    fetchData();
   }, []);
 
-  const openModal = (id) => {
-    setModalVisible(true);
-    setNotaEliminarId(id);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
+  
+  async function fetchData() {
+    try {
+      const response = await axios.get("http://192.168.0.80:8080/tasks");
+      setTasks(response.data);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  }
+
+  const formatDueDate = (dueDate) => {
+    const date = new Date(dueDate);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString().slice(-2);
+    return `${day}/${month}/${year}`;
   };
 
-  const closeModal = () => {
-    setModalVisible(false);
-    setNotaEliminarId(null);
+  const renderItem = ({ item }) => (
+    <TouchableOpacity style={styles.contenedor} onPress={() => handleTaskPress(item.id)}>
+      <View style={styles.rowContainer}>
+        <TouchableOpacity
+          onPress={() => handleToggleStatus(item.id, item.completed)}
+          style={styles.iconContainer}
+        >
+          {item.completed ? (
+            <MaterialIcons name="check" size={24} color="green" style={styles.icon} />
+          ) : (
+            <MaterialIcons name="schedule" size={24} color="orange" style={styles.icon} />
+          )}
+        </TouchableOpacity>
+        <View style={styles.textContainer}>
+          <Text style={styles.titulo}>{item.title}</Text>
+          <Text style={styles.fecha}>{formatDueDate(item.due_date)}</Text>
+        </View>
+        <View style={styles.iconContainer}>
+          <TouchableOpacity onPress={() => handleEditTask(item.id)}>
+            <MaterialIcons name="edit" size={24} color="black" style={styles.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
+            <MaterialIcons name="delete" size={24} color="red" style={styles.icon} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+  
+  const handleToggleStatus = async (taskId, isCompleted) => {
+    try {
+      await axios.put(`http://192.168.0.80:8080/tasks/${taskId}/toggle`, { completed: !isCompleted });
+      fetchData();
+    } catch (error) {
+      console.error(`Error al cambiar el estado de la tarea ${taskId}:`, error);
+    }
+  };
+  
+  
+  const handleTaskPress = (taskId) => {
+    console.log(`Tarea seleccionada: ${taskId}`);
+  };
+
+  const handleEditTask = (taskId) => {
+    props.navigation.navigate('Editar', { taskId });
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    Alert.alert(
+      'Confirmar Eliminación',
+      '¿Seguro que quieres eliminar esta tarea?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          onPress: async () => {
+            try {
+              await axios.delete(`http://192.168.0.80:8080/tasks/${taskId}`);
+              fetchData();
+            } catch (error) {
+              console.error(`Error al eliminar la tarea ${taskId}:`, error);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
-    <ScrollView>
-      <View>
-        <TouchableOpacity style={styles.boton} onPress={() => props.navigation.navigate('Crear')}>
-          <Text style={styles.textoBoton}>Agregar una nueva tarea</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.contenedor}>
-        {lista.map((not) => (
-          <ListItem
-            key={not.id}
-            containerStyle={tareasSeleccionadas.includes(not.id) ? styles.selectedItem : null}
-          >
-            <CheckBox
-              checked={tareasSeleccionadas.includes(not.id)}
-              onPress={() => toggleSeleccion(not.id)}
-            />
-            <ListItemContent>
-              <ListItemTitle style={styles.titulo}>{not.titulo}</ListItemTitle>
-              <ListItemSubtitle>{not.fecha}</ListItemSubtitle>
-            </ListItemContent>
-            <FontAwesome
-              name="pencil"
-              size={24}
-              color="black"
-              style={styles.icono}
-              onPress={() => {
-                props.navigation.navigate('Editar', { notaId: not.id });
-              }}
-            />
-            <FontAwesome
-              name="trash"
-              size={24}
-              color="black"
-              style={styles.icono}
-              onPress={() => openModal(not.id)}
-            />
-          </ListItem>
-        ))}
-      </View>
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>¿Seguro que quieres eliminar esta tarea?</Text>
-            <Button onPress={() => deleteNote(notaEliminarId)} style={styles.botonEliminar}>
-              Eliminar
-            </Button>
-            <Button onPress={closeModal} style={styles.botonCancelar}>
-              Cancelar
-            </Button>
-          </View>
+    
+    <View  style={styles.container}>
+       <View>
+            <TouchableOpacity style={styles.boton} onPress={()=>props.navigation.navigate('Crear')}>
+                <Text style={styles.textoBoton}>Agregar una nueva tarea</Text>
+            </TouchableOpacity>
         </View>
-      </Modal>
-    </ScrollView>
+      <FlatList
+        data={tasks}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+      />
+      <StatusBar style='auto' />
+    </View>
   );
 }
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginBottom: 16,
+  },
+  boton: {
+    backgroundColor: '#129BF4',
+    borderRadius: 20,
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 20,
+  },
+  textoBoton: {
+    textAlign: 'center',
+    padding: 10,
+    color: 'white',
+    fontSize: 16,
+  },
+  contenedor: {
+    margin: 20,
+    marginBottom: 1,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    width: '90%',
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  textContainer: {
+    flex: 1,
+  },
+  iconContainer: {
+    flexDirection: 'row',
+  },
+  icon: {
+    marginHorizontal: 10,
+  },
+  titulo: {
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  fecha: {
+    marginTop: 10,
+    color: 'gray',
+  },
+});

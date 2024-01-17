@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, TextInput, TouchableOpacity, Alert } from "react-native";
-import appFirebase from "../../../credenciales";
-import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Platform } from "react-native";
-import { styles } from './StyleEditNote'
-
-const db = getFirestore(appFirebase);
+import axios from 'axios';
+import { styles } from './StyleEditNote';
 
 export default function EditNote(props) {
   const initialState = {
-    titulo: "",
-    detalle: "",
-    fecha: "",
-    hora: "",
+    title: "",
+    description: "",
+    due_date: "",
+    due_time: "",
   };
 
   const [date, setDate] = useState(new Date());
@@ -24,18 +21,15 @@ export default function EditNote(props) {
   useEffect(() => {
     const getOneNote = async (id) => {
       try {
-        const docRef = doc(db, "notas", id);
-
-        const docSnap = await getDoc(docRef);
-
-        setEstado(docSnap.data());
+        const response = await axios.get(`http://192.168.0.80:8080/tasks/${id}`);
+        setEstado(response.data);
       } catch (error) {
         console.log(error);
       }
     };
 
-    getOneNote(props.route.params.notaId);
-  }, [props.route.params.notaId]);
+    getOneNote(props.route.params.taskId);
+  }, [props.route.params.taskId]);
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -46,25 +40,29 @@ export default function EditNote(props) {
 
     let tempDate = new Date(currentDate);
 
-    let fDate =
-      tempDate.getDate() +
-      "/" +
-      (tempDate.getMonth() + 1) +
-      "/" +
-      tempDate.getFullYear();
-
-    let fTime = tempDate.getHours() + " : " + tempDate.getMinutes();
+     // Formatear fecha
+     let fDate =
+     tempDate.getFullYear() +
+     "-" +
+     (tempDate.getMonth() + 1).toString().padStart(2, '0') +
+     "-" +
+     tempDate.getDate().toString().padStart(2, '0');
+ 
+   // Formatear hora
+   let fTime =
+     tempDate.getHours().toString().padStart(2, '0') +
+     ":" +
+     tempDate.getMinutes().toString().padStart(2, '0');
 
     setEstado({
       ...estado,
-      fecha: fDate,
-      hora: fTime,
+      due_date: fDate,
+      due_time: fTime,
     });
   };
 
   const showMode = (currentDate) => {
     setShow(true);
-
     setMode(currentDate);
   };
 
@@ -75,34 +73,26 @@ export default function EditNote(props) {
   const saveEditedNote = async () => {
     try {
       if (
-        estado.titulo === "" ||
-        estado.detalle === "" ||
-        estado.fecha === "" ||
-        estado.hora === ""
+        estado.title === "" ||
+        estado.description === "" ||
+        estado.due_date === "" ||
+        estado.due_time === ""
       ) {
         Alert.alert(
           "Mensaje importante",
-
           "Debes rellenar todos los campos requeridos"
         );
       } else {
-        const notaActualizada = {
-          titulo: estado.titulo,
-
-          detalle: estado.detalle,
-
-          fecha: estado.fecha,
-
-          hora: estado.hora,
+        const tareaActualizada = {
+          title: estado.title,
+          description: estado.description,
+          due_date: estado.due_date,
+          due_time: estado.due_time,
         };
 
-        await updateDoc(
-          doc(db, "notas", props.route.params.notaId),
+        await axios.put(`http://192.168.0.80:8080/tasks/${props.route.params.taskId}`, tareaActualizada);
 
-          notaActualizada
-        );
-
-        Alert.alert("Éxito", "Nota actualizada con éxito");
+        Alert.alert("Éxito", "Tarea actualizada con éxito");
 
         props.navigation.navigate("Notas");
       }
@@ -110,14 +100,15 @@ export default function EditNote(props) {
       console.log(error);
     }
   };
+
   return (
     <View style={styles.contenedor}>
       <View style={styles.caja}>
         <TextInput
           placeholder="Ingresa el título"
           style={styles.textoInput}
-          value={estado.titulo}
-          onChangeText={(value) => handleChangeText(value, "titulo")}
+          value={estado.title}
+          onChangeText={(value) => handleChangeText(value, "title")}
         />
 
         <TextInput
@@ -125,17 +116,15 @@ export default function EditNote(props) {
           multiline={true}
           numberOfLines={4}
           style={styles.textoInput}
-          value={estado.detalle}
-          onChangeText={(value) => handleChangeText(value, "detalle")}
+          value={estado.description}
+          onChangeText={(value) => handleChangeText(value, "description")}
         />
-
-        {/* Contenedor de fecha */}
 
         <View style={styles.inputDate}>
           <TextInput
-            placeholder="1/1/2024"
+            placeholder="2024-01-01"
             style={styles.textoDate}
-            value={estado.fecha}
+            value={estado.due_date}
             editable={false}
           />
 
@@ -147,14 +136,11 @@ export default function EditNote(props) {
           </TouchableOpacity>
         </View>
 
-        {/*
-Contenedor de hora */}
-
         <View style={styles.inputDate}>
           <TextInput
-            placeholder="6 : 30"
+            placeholder="12:00"
             style={styles.textoDate}
-            value={estado.hora}
+            value={estado.due_time}
             editable={false}
           />
 
@@ -185,4 +171,3 @@ Contenedor de hora */}
     </View>
   );
 }
-
