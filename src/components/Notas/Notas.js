@@ -3,13 +3,14 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Alert } from 'react-native';
+import { styles } from './StyleNotas.js';
 import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 
 export default function Notas(props) {
   const [tasks, setTasks] = useState([]);
 
-  useEffect(() =>{
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -18,7 +19,7 @@ export default function Notas(props) {
       fetchData();
     }, [])
   );
-  
+
   async function fetchData() {
     try {
       const response = await axios.get("http://192.168.0.80:8080/tasks");
@@ -27,6 +28,7 @@ export default function Notas(props) {
       console.error("Error fetching tasks:", error);
     }
   }
+  
 
   const formatDueDate = (dueDate) => {
     const date = new Date(dueDate);
@@ -64,7 +66,7 @@ export default function Notas(props) {
       </View>
     </TouchableOpacity>
   );
-  
+
   const handleToggleStatus = async (taskId, isCompleted) => {
     try {
       await axios.put(`http://192.168.0.80:8080/tasks/${taskId}/toggle`, { completed: !isCompleted });
@@ -73,8 +75,7 @@ export default function Notas(props) {
       console.error(`Error al cambiar el estado de la tarea ${taskId}:`, error);
     }
   };
-  
-  
+
   const handleTaskPress = (taskId) => {
     console.log(`Tarea seleccionada: ${taskId}`);
   };
@@ -109,13 +110,13 @@ export default function Notas(props) {
   };
 
   return (
-    
-    <View  style={styles.container}>
-       <View>
-            <TouchableOpacity style={styles.boton} onPress={()=>props.navigation.navigate('Crear')}>
-                <Text style={styles.textoBoton}>Agregar una nueva tarea</Text>
-            </TouchableOpacity>
-        </View>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.boton} onPress={() => props.navigation.navigate('Crear')}>
+        <Text style={styles.textoBoton}>Agregar una nueva tarea</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.boton} onPress={() => props.navigation.navigate('TareasPendientes')}>
+        <Text style={styles.textoBoton}>Tareas Completadas</Text>
+      </TouchableOpacity>
       <FlatList
         data={tasks}
         renderItem={renderItem}
@@ -125,60 +126,3 @@ export default function Notas(props) {
     </View>
   );
 }
-
-export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginBottom: 16,
-  },
-  boton: {
-    backgroundColor: '#129BF4',
-    borderRadius: 20,
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 20,
-  },
-  textoBoton: {
-    textAlign: 'center',
-    padding: 10,
-    color: 'white',
-    fontSize: 16,
-  },
-  contenedor: {
-    margin: 20,
-    marginBottom: 1,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    width: '90%',
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  rowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  textContainer: {
-    flex: 1,
-  },
-  iconContainer: {
-    flexDirection: 'row',
-  },
-  icon: {
-    marginHorizontal: 10,
-  },
-  titulo: {
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-  fecha: {
-    marginTop: 10,
-    color: 'gray',
-  },
-});

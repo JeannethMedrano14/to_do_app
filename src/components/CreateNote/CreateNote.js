@@ -55,7 +55,6 @@ export default function CreateNote(props) {
           due_time: hora,
         };
 
-        // Llamar a tu backend para crear una tarea
         await axios.post('http://192.168.0.80:8080/tasks', nota);
 
         Alert.alert('Éxito', 'Guardado con éxito');

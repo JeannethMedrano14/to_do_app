@@ -22,6 +22,8 @@ export default function EditNote(props) {
     const getOneNote = async (id) => {
       try {
         const response = await axios.get(`http://192.168.0.80:8080/tasks/${id}`);
+        const taskData = response.data;
+        taskData.due_date = taskData.due_date.split('T')[0];
         setEstado(response.data);
       } catch (error) {
         console.log(error);
@@ -33,9 +35,7 @@ export default function EditNote(props) {
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
-
     setShow(Platform.OS === "ios");
-
     setDate(currentDate);
 
     let tempDate = new Date(currentDate);
@@ -160,7 +160,6 @@ export default function EditNote(props) {
             is24Hour={true}
             display="default"
             onChange={onChange}
-            minimumDate={new Date("2024-1-1")}
           />
         )}
 
