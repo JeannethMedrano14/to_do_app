@@ -114,9 +114,9 @@ export default function Notas(props) {
       <TouchableOpacity style={styles.boton} onPress={() => props.navigation.navigate('Crear')}>
         <Text style={styles.textoBoton}>Agregar una nueva tarea</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.boton} onPress={() => props.navigation.navigate('TareasPendientes')}>
+      {/* <TouchableOpacity style={styles.boton} onPress={() => props.navigation.navigate('TareasPendientes')}>
         <Text style={styles.textoBoton}>Tareas Completadas</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <FlatList
         data={tasks}
         renderItem={renderItem}
